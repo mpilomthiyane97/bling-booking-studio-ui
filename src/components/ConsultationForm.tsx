@@ -1,11 +1,54 @@
-
 import { useState } from "react";
-import { Check, WhatsappIcon } from "lucide-react";
+import { Check, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+
+interface DentalBraces {
+  had: boolean;
+  reason: string;
+}
+
+interface Metal {
+  type: string;
+  goldColor: string;
+  goldCarat: string;
+}
+
+interface Design {
+  type: string;
+  color: string;
+  gemstones: boolean;
+  other: string;
+}
+
+interface FormData {
+  // Personal Details
+  name: string;
+  contact: string;
+  email: string;
+  gender: string;
+  age: string;
+  address: string;
+  province: string;
+  city: string;
+
+  // Dental History
+  dentalBraces: DentalBraces;
+  looseTeeth: string;
+  growingTeeth: string;
+
+  // Design Specifications
+  teethCount: string;
+  faceType: string;
+  metal: Metal;
+  position: string;
+  design: Design;
+}
 
 const ConsultationForm = () => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
+  
+  const [formData, setFormData] = useState<FormData>({
     // Personal Details
     name: "",
     contact: "",
@@ -13,86 +56,112 @@ const ConsultationForm = () => {
     gender: "",
     age: "",
     address: "",
-    
+    province: "",
+    city: "",
+
     // Dental History
-    hasBraces: "no",
-    hadBraces: "no",
-    looseTeeth: "no",
-    growingTeeth: "no",
-    
-    // Design Preferences
+    dentalBraces: {
+      had: false,
+      reason: "",
+    },
+    looseTeeth: "",
+    growingTeeth: "",
+
+    // Design Specifications
     teethCount: "",
-    metalType: "",
-    goldColor: "",
-    goldCarat: "",
     faceType: "",
+    metal: {
+      type: "",
+      goldColor: "",
+      goldCarat: "",
+    },
     position: "",
-    
-    // Additional Design
-    color: "",
-    gemstones: "",
-    otherDesign: "",
+    design: {
+      type: "",
+      color: "",
+      gemstones: false,
+      other: "",
+    },
   });
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    
+    // Handle nested objects (e.g., dentalBraces.had, metal.type, etc.)
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
+      const parentKey = parent as keyof FormData;
+      
+      setFormData((prev: FormData) => {
+        const parentValue = prev[parentKey] as DentalBraces | Metal | Design;
+        const updatedParentValue = {
+          ...parentValue,
+          [child]: value === "true" ? true : value === "false" ? false : value,
+        };
+
+        return {
+          ...prev,
+          [parentKey]: updatedParentValue,
+        };
+      });
+    } else {
+      setFormData((prev: FormData) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form data:", formData);
     
     // Prepare WhatsApp message
     const message = `
-*NEW BOOKING REQUEST FROM WEBSITE*
+*New Consultation Request*
 
-*Personal Details:*
+*Personal Details*
 Name: ${formData.name}
 Contact: ${formData.contact}
 Email: ${formData.email}
 Gender: ${formData.gender}
 Age: ${formData.age}
 Address: ${formData.address}
+Province: ${formData.province}
+City: ${formData.city}
 
-*Dental History:*
-Currently has braces: ${formData.hasBraces}
-Had braces before: ${formData.hadBraces}
-Has loose teeth: ${formData.looseTeeth}
-Has growing teeth: ${formData.growingTeeth}
+*Dental History*
+Had Braces: ${formData.dentalBraces.had ? "Yes" : "No"}
+${formData.dentalBraces.had ? `Reason: ${formData.dentalBraces.reason}` : ""}
+Loose Teeth: ${formData.looseTeeth}
+Growing Teeth: ${formData.growingTeeth}
 
-*Design Preferences:*
-Number of teeth: ${formData.teethCount}
-Metal type: ${formData.metalType}
-${formData.metalType === "Gold" ? `Gold color: ${formData.goldColor}` : ""}
-${formData.metalType === "Gold" ? `Gold carat: ${formData.goldCarat}` : ""}
-Face type: ${formData.faceType}
+*Design Specifications*
+Number of Teeth: ${formData.teethCount}
+Face Type: ${formData.faceType}
+Metal Type: ${formData.metal.type}
+${formData.metal.type === "Gold" ? `Gold Color: ${formData.metal.goldColor}
+Gold Carat: ${formData.metal.goldCarat}` : ""}
 Position: ${formData.position}
+Design Type: ${formData.design.type}
+${formData.design.type === "Added Design" ? `Color: ${formData.design.color}
+Gemstones: ${formData.design.gemstones ? "Yes" : "No"}
+Other Design Details: ${formData.design.other}` : ""}
+    `.trim();
 
-*Additional Design:*
-Color: ${formData.color}
-Gemstones: ${formData.gemstones}
-Other design requests: ${formData.otherDesign}
-    `;
+    // Company WhatsApp number
+    const companyWhatsApp = "27742953316"; // Removed spaces and + for URL compatibility
+    const whatsappUrl = `https://wa.me/${companyWhatsApp}?text=${encodeURIComponent(message)}`;
     
-    const encodedMessage = encodeURIComponent(message);
-    // Note: Replace with actual WhatsApp number in production
-    const whatsappUrl = `https://wa.me/27123456789?text=${encodedMessage}`;
-    
+    // Open WhatsApp in new tab
+    window.open(whatsappUrl, "_blank");
+
+    // Show success toast
     toast({
-      title: "Booking submitted!",
-      description: "Redirecting to WhatsApp to finalize your booking...",
+      title: "Form Submitted",
+      description: "Your consultation request has been sent via WhatsApp.",
     });
-    
-    // Open WhatsApp in a new tab
-    setTimeout(() => {
-      window.open(whatsappUrl, "_blank");
-    }, 1500);
   };
-  
+
   const sendEmail = () => {
     // Email subject and body preparation
     const subject = "New Booking Request from Website - " + formData.name;
@@ -106,39 +175,47 @@ Email: ${formData.email}
 Gender: ${formData.gender}
 Age: ${formData.age}
 Address: ${formData.address}
+Province: ${formData.province}
+City: ${formData.city}
 
 Dental History:
-Currently has braces: ${formData.hasBraces}
-Had braces before: ${formData.hadBraces}
-Has loose teeth: ${formData.looseTeeth}
-Has growing teeth: ${formData.growingTeeth}
+Had dental braces: ${formData.dentalBraces.had ? "Yes" : "No"}
+Reason for dental braces: ${formData.dentalBraces.reason}
+Loose teeth: ${formData.looseTeeth}
+Growing teeth: ${formData.growingTeeth}
 
-Design Preferences:
+Design Specifications:
 Number of teeth: ${formData.teethCount}
-Metal type: ${formData.metalType}
-${formData.metalType === "Gold" ? `Gold color: ${formData.goldColor}` : ""}
-${formData.metalType === "Gold" ? `Gold carat: ${formData.goldCarat}` : ""}
 Face type: ${formData.faceType}
+Metal type: ${formData.metal.type}
+${formData.metal.type === "Gold" ? `Gold color: ${formData.metal.goldColor}` : ""}
+${formData.metal.type === "Gold" ? `Gold carat: ${formData.metal.goldCarat}` : ""}
 Position: ${formData.position}
-
-Additional Design:
-Color: ${formData.color}
-Gemstones: ${formData.gemstones}
-Other design requests: ${formData.otherDesign}
+Design type: ${formData.design.type}
+Color: ${formData.design.color}
+Gemstones: ${formData.design.gemstones ? "Yes" : "No"}
+Other design requests: ${formData.design.other}
     `;
     
     const mailtoUrl = `mailto:Trstudio012@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
   };
-  
+
   return (
     <section id="booking" className="py-20 bg-gradient-to-b from-trstudio-black/95 to-trstudio-black">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
           <div className="bg-gold p-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-black text-center">
-              Book Your Consultation
+              Consultation Form
             </h2>
+            <div className="mt-2 text-black/70 text-center text-sm">
+              <p>Instructions:</p>
+              <ul className="list-none space-y-1">
+                <li>• Complete the form in English</li>
+                <li>• Tick box where applicable</li>
+              </ul>
+            </div>
           </div>
           
           <form onSubmit={handleSubmit} className="p-6 md:p-10">
@@ -150,7 +227,7 @@ Other design requests: ${formData.otherDesign}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-gray-700 mb-2">Full Name *</label>
+                  <label className="block text-gray-700 mb-2">Name and Surname</label>
                   <input
                     type="text"
                     name="name"
@@ -162,7 +239,7 @@ Other design requests: ${formData.otherDesign}
                 </div>
                 
                 <div>
-                  <label className="block text-gray-700 mb-2">Contact Number *</label>
+                  <label className="block text-gray-700 mb-2">Contact</label>
                   <input
                     type="tel"
                     name="contact"
@@ -174,7 +251,7 @@ Other design requests: ${formData.otherDesign}
                 </div>
                 
                 <div>
-                  <label className="block text-gray-700 mb-2">Email Address *</label>
+                  <label className="block text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
                     name="email"
@@ -187,39 +264,113 @@ Other design requests: ${formData.otherDesign}
                 
                 <div>
                   <label className="block text-gray-700 mb-2">Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <div className="flex gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="Male"
+                        checked={formData.gender === "Male"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Male</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="gender"
+                        value="Female"
+                        checked={formData.gender === "Female"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Female</span>
+                    </label>
+                  </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-gray-700 mb-2">Age</label>
-                  <input
-                    type="number"
-                    name="age"
-                    value={formData.age}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                  />
+                  <div className="flex gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="age"
+                        value="10-20"
+                        checked={formData.age === "10-20"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">10-20</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="age"
+                        value="20-30"
+                        checked={formData.age === "20-30"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">20-30</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="age"
+                        value="30-40"
+                        checked={formData.age === "30-40"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">30-40</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="age"
+                        value="40+"
+                        checked={formData.age === "40+"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">40+</span>
+                    </label>
+                  </div>
                 </div>
                 
-                <div className="md:col-span-2">
+                <div className="col-span-2">
                   <label className="block text-gray-700 mb-2">Address</label>
-                  <textarea
+                  <input
+                    type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                    rows={2}
-                  ></textarea>
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2">Province</label>
+                  <input
+                    type="text"
+                    name="province"
+                    value={formData.province}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  />
                 </div>
               </div>
             </div>
@@ -229,17 +380,17 @@ Other design requests: ${formData.otherDesign}
               <h3 className="text-xl font-bold mb-6 pb-2 border-b border-gray-200">
                 Dental History
               </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="block text-gray-700 mb-2">Do you currently have braces?</label>
-                  <div className="flex gap-4">
+                  <label className="block text-gray-700 mb-2">Have you ever had dental braces? If Yes, Briefly describe the reason</label>
+                  <div className="flex gap-4 mb-2">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
-                        name="hasBraces"
-                        value="yes"
-                        checked={formData.hasBraces === "yes"}
+                        name="dentalBraces.had"
+                        value="true"
+                        checked={formData.dentalBraces.had}
                         onChange={handleInputChange}
                         className="w-4 h-4 text-gold"
                       />
@@ -248,248 +399,297 @@ Other design requests: ${formData.otherDesign}
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
-                        name="hasBraces"
-                        value="no"
-                        checked={formData.hasBraces === "no"}
+                        name="dentalBraces.had"
+                        value="false"
+                        checked={!formData.dentalBraces.had}
                         onChange={handleInputChange}
                         className="w-4 h-4 text-gold"
                       />
                       <span className="ml-2">No</span>
                     </label>
                   </div>
+                  {formData.dentalBraces.had && (
+                    <textarea
+                      name="dentalBraces.reason"
+                      value={formData.dentalBraces.reason}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                      rows={2}
+                      placeholder="Please describe the reason"
+                    ></textarea>
+                  )}
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-700 mb-2">Did you have braces before?</label>
-                  <div className="flex gap-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="hadBraces"
-                        value="yes"
-                        checked={formData.hadBraces === "yes"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-gold"
-                      />
-                      <span className="ml-2">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="hadBraces"
-                        value="no"
-                        checked={formData.hadBraces === "no"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-gold"
-                      />
-                      <span className="ml-2">No</span>
-                    </label>
-                  </div>
+                  <label className="block text-gray-700 mb-2">Do you have any loose tooth/teeth?</label>
+                  <input
+                    type="text"
+                    name="looseTeeth"
+                    value={formData.looseTeeth}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  />
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-700 mb-2">Do you have any loose teeth?</label>
-                  <div className="flex gap-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="looseTeeth"
-                        value="yes"
-                        checked={formData.looseTeeth === "yes"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-gold"
-                      />
-                      <span className="ml-2">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="looseTeeth"
-                        value="no"
-                        checked={formData.looseTeeth === "no"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-gold"
-                      />
-                      <span className="ml-2">No</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-gray-700 mb-2">Do you have any growing teeth?</label>
-                  <div className="flex gap-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="growingTeeth"
-                        value="yes"
-                        checked={formData.growingTeeth === "yes"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-gold"
-                      />
-                      <span className="ml-2">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="growingTeeth"
-                        value="no"
-                        checked={formData.growingTeeth === "no"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 text-gold"
-                      />
-                      <span className="ml-2">No</span>
-                    </label>
-                  </div>
+                  <label className="block text-gray-700 mb-2">Do you have any new growing tooth/teeth?</label>
+                  <input
+                    type="text"
+                    name="growingTeeth"
+                    value={formData.growingTeeth}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  />
                 </div>
               </div>
             </div>
             
-            {/* Design Preferences */}
+            {/* Design Specifications */}
             <div className="mb-10">
               <h3 className="text-xl font-bold mb-6 pb-2 border-b border-gray-200">
-                Design Preferences
+                Design Specifications
               </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="block text-gray-700 mb-2">Number of teeth</label>
+                  <label className="block text-gray-700 mb-2">Number of Teeth</label>
                   <input
-                    type="number"
+                    type="text"
                     name="teethCount"
                     value={formData.teethCount}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-gray-700 mb-2">Metal type</label>
-                  <select
-                    name="metalType"
-                    value={formData.metalType}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                  >
-                    <option value="">Select metal type</option>
-                    <option value="Platinum">Platinum</option>
-                    <option value="Gold">Gold</option>
-                    <option value="Silver">Silver (925 Sterling)</option>
-                  </select>
+                  <label className="block text-gray-700 mb-2">Face Type</label>
+                  <div className="flex gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="faceType"
+                        value="Solid Face"
+                        checked={formData.faceType === "Solid Face"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Solid Face</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="faceType"
+                        value="Open Face"
+                        checked={formData.faceType === "Open Face"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Open Face</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="faceType"
+                        value="Both"
+                        checked={formData.faceType === "Both"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Both</span>
+                    </label>
+                  </div>
                 </div>
-                
-                {formData.metalType === "Gold" && (
-                  <>
-                    <div>
-                      <label className="block text-gray-700 mb-2">Gold color</label>
-                      <select
-                        name="goldColor"
-                        value={formData.goldColor}
+
+                <div>
+                  <label className="block text-gray-700 mb-2">Metal</label>
+                  <div className="flex gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="metal.type"
+                        value="Platinum"
+                        checked={formData.metal.type === "Platinum"}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                      >
-                        <option value="">Select gold color</option>
-                        <option value="Yellow">Yellow</option>
-                        <option value="White">White</option>
-                        <option value="Rose">Rose</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-2">Gold carat</label>
-                      <select
-                        name="goldCarat"
-                        value={formData.goldCarat}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Platinum</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="metal.type"
+                        value="Gold"
+                        checked={formData.metal.type === "Gold"}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                      >
-                        <option value="">Select carat</option>
-                        <option value="9K">9K</option>
-                        <option value="14K">14K</option>
-                        <option value="18K">18K</option>
-                        <option value="22K">22K</option>
-                      </select>
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Gold</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="metal.type"
+                        value="Silver"
+                        checked={formData.metal.type === "Silver"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Silver</span>
+                    </label>
+                  </div>
+                  {formData.metal.type === "Gold" && (
+                    <div className="mt-2 flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-gray-700 mb-2">Gold Color</label>
+                        <input
+                          type="text"
+                          name="metal.goldColor"
+                          value={formData.metal.goldColor}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-gray-700 mb-2">Gold Carat</label>
+                        <input
+                          type="text"
+                          name="metal.goldCarat"
+                          value={formData.metal.goldCarat}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                        />
+                      </div>
                     </div>
-                  </>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2">Top or Bottom set</label>
+                  <div className="flex gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="position"
+                        value="Top"
+                        checked={formData.position === "Top"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Top</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="position"
+                        value="Bottom"
+                        checked={formData.position === "Bottom"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Bottom</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="position"
+                        value="Both"
+                        checked={formData.position === "Both"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Both</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2">Design</label>
+                  <div className="flex gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="design.type"
+                        value="Plain"
+                        checked={formData.design.type === "Plain"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Plain</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="design.type"
+                        value="Added Design"
+                        checked={formData.design.type === "Added Design"}
+                        onChange={handleInputChange}
+                        className="w-4 h-4 text-gold"
+                      />
+                      <span className="ml-2">Added Design</span>
+                    </label>
+                  </div>
+                </div>
+
+                {formData.design.type === "Added Design" && (
+                  <div className="pl-4 border-l-2 border-gold/30">
+                    <p className="text-sm text-gray-500 mb-4">In-case of any added design:</p>
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-gray-700 mb-2">Color</label>
+                        <input
+                          type="text"
+                          name="design.color"
+                          value={formData.design.color}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 mb-2">Gemstones</label>
+                        <div className="flex gap-4">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              name="design.gemstones"
+                              value="true"
+                              checked={formData.design.gemstones}
+                              onChange={handleInputChange}
+                              className="w-4 h-4 text-gold"
+                            />
+                            <span className="ml-2">Yes</span>
+                          </label>
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              name="design.gemstones"
+                              value="false"
+                              checked={!formData.design.gemstones}
+                              onChange={handleInputChange}
+                              className="w-4 h-4 text-gold"
+                            />
+                            <span className="ml-2">No</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-700 mb-2">Other</label>
+                        <textarea
+                          name="design.other"
+                          value={formData.design.other}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
+                          rows={2}
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
                 )}
-                
-                <div>
-                  <label className="block text-gray-700 mb-2">Face type</label>
-                  <select
-                    name="faceType"
-                    value={formData.faceType}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                  >
-                    <option value="">Select face type</option>
-                    <option value="Solid">Solid</option>
-                    <option value="Open">Open Face</option>
-                    <option value="Both">Both</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-gray-700 mb-2">Position</label>
-                  <select
-                    name="position"
-                    value={formData.position}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                  >
-                    <option value="">Select position</option>
-                    <option value="Top">Top</option>
-                    <option value="Bottom">Bottom</option>
-                    <option value="Both">Both</option>
-                  </select>
-                </div>
               </div>
             </div>
-            
-            {/* Additional Design */}
-            <div className="mb-10">
-              <h3 className="text-xl font-bold mb-6 pb-2 border-b border-gray-200">
-                Additional Design Details
-              </h3>
-              
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label className="block text-gray-700 mb-2">Color (if any)</label>
-                  <input
-                    type="text"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                    placeholder="E.g., Red, Blue, Multicolor"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-gray-700 mb-2">Gemstones (if any)</label>
-                  <input
-                    type="text"
-                    name="gemstones"
-                    value={formData.gemstones}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                    placeholder="E.g., Diamonds, Rubies, etc."
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-gray-700 mb-2">Other design requests</label>
-                  <textarea
-                    name="otherDesign"
-                    value={formData.otherDesign}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gold/50"
-                    rows={3}
-                    placeholder="Any special requests or design ideas..."
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-            
+
             {/* Submission Buttons */}
             <div className="flex flex-col md:flex-row gap-4 justify-center mt-10">
               <button

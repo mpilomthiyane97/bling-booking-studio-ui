@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -6,14 +5,22 @@ const Gallery = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   
-  // Placeholder images - these would be replaced with actual images
+  // Dental grillz images
   const images = [
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg",
+    "/images/pre1.jpeg",
+    "/images/pre2.jpeg",
+    // "/images/pre3.jpeg",
+    "/images/pre4.jpeg",
+    "/images/pre5.jpeg",
+    // "/images/pre6.jpeg",
+    "/images/pre7.jpeg",
+    "/images/pre8.jpeg",
+    "/images/pre9.jpeg",
+    "/images/pre10.jpeg",
+    "/images/pre11.jpeg",
+    "/images/pre12.jpeg",
+    "/images/pre13.jpeg",
+    "/images/pre14.jpeg",
   ];
   
   const openModal = (index: number) => {
@@ -47,21 +54,21 @@ const Gallery = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
           {images.map((image, index) => (
             <div 
               key={index}
-              className="aspect-square overflow-hidden rounded-md cursor-pointer group relative"
+              className="aspect-square overflow-hidden rounded-lg cursor-pointer group relative shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={() => openModal(index)}
             >
               <img 
                 src={image} 
-                alt={`Gallery item ${index + 1}`} 
+                alt={`Custom Grillz Design ${index + 1}`} 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <span className="w-12 h-12 rounded-full bg-gold flex items-center justify-center">
-                  <ChevronRight className="h-6 w-6 text-black" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <span className="w-14 h-14 rounded-full bg-gold/90 flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                  <ChevronRight className="h-7 w-7 text-black" />
                 </span>
               </div>
             </div>
@@ -70,7 +77,7 @@ const Gallery = () => {
         
         <div className="mt-8 text-center">
           <p className="text-gold inline-block border-b border-gold/30 hover:border-gold cursor-pointer">
-            View more on Instagram
+          <a href="https://www.instagram.com/_trstudios/" target="_blank" rel="noopener noreferrer">View more on Instagram</a> 
           </p>
         </div>
       </div>
@@ -92,12 +99,15 @@ const Gallery = () => {
             <ChevronLeft className="h-10 w-10" />
           </button>
           
-          <div className="max-w-4xl max-h-[80vh] relative">
+          <div className="max-w-5xl max-h-[85vh] relative">
             <img 
               src={images[activeIndex]} 
-              alt={`Gallery item ${activeIndex + 1}`} 
-              className="max-w-full max-h-[80vh] object-contain"
+              alt={`Custom Grillz Design ${activeIndex + 1}`} 
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
             />
+            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-center py-2 px-4 rounded-b-lg">
+              {`Design ${activeIndex + 1} of ${images.length}`}
+            </div>
           </div>
           
           <button 

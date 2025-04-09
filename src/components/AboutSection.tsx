@@ -66,7 +66,7 @@ const AboutSection = () => {
           
           <div className="relative h-full min-h-[400px]">
             <div className="absolute inset-0 bg-black rounded-lg overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/placeholder.svg')" }}></div>
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/images/pre12.jpeg')" }}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                 <div className="mb-4">
