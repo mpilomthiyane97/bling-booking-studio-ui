@@ -125,7 +125,7 @@ const ServiceProcess = () => {
               * Final pricing depends on design complexity, materials chosen, and number of teeth
             </p>
             <a
-              href="/booking"
+              href="/ConsultationForm"
               className="bg-gold hover:bg-gold-dark text-black font-bold py-3 px-8 rounded-md transition-all inline-block"
             >
               Get Your Custom Quote
