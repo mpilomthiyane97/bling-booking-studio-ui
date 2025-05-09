@@ -264,7 +264,7 @@ Other design requests: ${formData.design.other}
                 
                 <div>
                   <label className="block text-gray-700 mb-2">Gender</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -292,7 +292,7 @@ Other design requests: ${formData.design.other}
 
                 <div>
                   <label className="block text-gray-700 mb-2">Age</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -384,7 +384,7 @@ Other design requests: ${formData.design.other}
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label className="block text-gray-700 mb-2">Have you ever had dental braces? If Yes, Briefly describe the reason</label>
-                  <div className="flex gap-4 mb-2">
+                  <div className="flex flex-col sm:flex-row gap-4 mb-2">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -464,7 +464,7 @@ Other design requests: ${formData.design.other}
 
                 <div>
                   <label className="block text-gray-700 mb-2">Face Type</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -503,7 +503,7 @@ Other design requests: ${formData.design.other}
 
                 <div>
                   <label className="block text-gray-700 mb-2">Metal</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -539,7 +539,7 @@ Other design requests: ${formData.design.other}
                     </label>
                   </div>
                   {formData.metal.type === "Gold" && (
-                    <div className="mt-2 flex gap-4">
+                    <div className="mt-2 flex flex-col sm:flex-row gap-4">
                       <div className="flex-1">
                         <label className="block text-gray-700 mb-2">Gold Color</label>
                         <input
@@ -566,7 +566,7 @@ Other design requests: ${formData.design.other}
 
                 <div>
                   <label className="block text-gray-700 mb-2">Top or Bottom set</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -605,7 +605,7 @@ Other design requests: ${formData.design.other}
 
                 <div>
                   <label className="block text-gray-700 mb-2">Design</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -648,7 +648,7 @@ Other design requests: ${formData.design.other}
 
                       <div>
                         <label className="block text-gray-700 mb-2">Gemstones</label>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                           <label className="inline-flex items-center">
                             <input
                               type="radio"
