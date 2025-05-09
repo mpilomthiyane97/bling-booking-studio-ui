@@ -34,7 +34,8 @@ const AboutSection = () => {
                 <MapPin className="h-6 w-6 text-gold mr-3 mt-1 flex-shrink-0" />
                 <div>
                   <h4 className="font-bold">Our Location</h4>
-                  <p className="text-gray-600">123 Urban Street, Studio 4, Cape Town, South Africa</p>
+                  <p className="text-gray-600">House 51 Rand  Refinery Estate 
+                  1 Refinery Road, Germiston, 1400</p>
                 </div>
               </div>
               
